@@ -8,7 +8,7 @@ import (
 	"path"
 	"strconv"
 
-	"read-adviser-bot/lib/e"
+	"cinema-tg/lib/e"
 )
 
 type Client struct {

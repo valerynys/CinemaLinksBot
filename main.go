@@ -3,35 +3,44 @@ package main
 import (
 	"flag"
 	"log"
+
+	tgClient "cinema-tg/clients/telegram"
+	"cinema-tg/consumer/event-consumer"
+	"cinema-tg/events/telegram"
+	"cinema-tg/storage/files"
 )
 
-//"fmt"
+const (
+	tgBotHost   = "api.telegram.org"
+	storagePath = "files_storage"
+	batchSize   = 100
+)
 
 func main() {
-	t:= mustToken()
+	eventsProcessor := telegram.New(
+		tgClient.New(tgBotHost, mustToken()),
+		files.New(storagePath),
+	)
 
-	// token = flags.Get(token)
+	log.Print("service started")
 
-	// tgClient = telegram.New(token)
-	
-	// fetcher = fetcher.New()
+	consumer := event_consumer.New(eventsProcessor, eventsProcessor, batchSize)
 
-	// processor = processor.New()
-
-	// consumer.Start(fetcher, processor)
-
+	if err := consumer.Start(); err != nil {
+		log.Fatal("service is stopped", err)
+	}
 }
 
 func mustToken() string {
-	token:=flag.String(
-		"token-bot-token",
+	token := flag.String(
+		"tg-bot-token",
 		"",
-		"token for access to telegramm bot",
+		"token for access to telegram bot",
 	)
 
 	flag.Parse()
 
-	if *token == ""{
+	if *token == "" {
 		log.Fatal("token is not specified")
 	}
 
